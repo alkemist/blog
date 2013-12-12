@@ -1,6 +1,10 @@
-<article class="post">
-  <div class="title">
-    <h1><a href="/<%= post.htmlPath() %>"><%= post.title() %></a></h1>
+<div class="ui grid">
+<div class="column">
+<article class="post ui stacked segment">
+  <div class="ui header">
+    <h1>
+      <%= post.title() %>
+    </h1>
     <p>
       <%= post.date() %>
       <% if(post.get('author')) { %>
@@ -13,10 +17,20 @@
   </section>
   <section class="navigation">
       <% if(site.newerPost(post)) { %>
-        <span class="newer"><a href="/<%= site.newerPost(post).htmlPath() %>">&#8672;&nbsp;newer</a></span>
+        <a href="/<%= site.newerPost(post).htmlPath() %>">
+          <div class="ui tiny labeled icon button">
+            <i class="tiny left arrow icon"></i>
+            Newer
+          </div>
+        </a>
       <% } %>
       <% if(site.olderPost(post)) { %>
-        <span class="older"><a href="/<%= site.olderPost(post).htmlPath() %>">older&nbsp;&#8674;</a></span>
+        <a href="/<%= site.olderPost(post).htmlPath() %>">
+          <div class="ui tiny labeled icon button">
+            <i class="tiny right arrow icon"></i>
+            Older
+          </div>
+        </a>
       <% } %>
     </section>
   <section class="comments">
@@ -32,3 +46,5 @@
     <% } %>
   </section>
 </article>
+</div>
+</div>

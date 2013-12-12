@@ -5,18 +5,27 @@
     <link rel="alternate" type="application/rss+xml" title="<%= site.title %> - feed" href="/index.xml" />
     <title><%= site.title %><%= post ? ' - '+post.title() : '' %></title>
   </head>
-  <body>
-    <header>
-      <h1><%= site.title %></h1>
-      <nav>
-        <a href="/">home</a> | <a href="/archive.html">archives</a> | <a href="/pages/about.html">about</a>
-      </nav>
-    </header>
+  <body style="padding-left: 1em, background-color: #f7f7f7">
+      <div class="ui inverted menu">
+        <a class="item">
+          <%= site.title %>
+        </a>
+        <a class="item" href="/">
+          Home
+        </a>
+        <a class="item" href="/archive.html">
+          Archives
+        </a>
+      </div>
+    <div class="wrapper">
 
-    <%= yield %>
+      <%= yield %>
 
+    </div>
     <footer>
-      Copyright <%= site.author %>, <%= new Date().getFullYear() %>.
+      <div class="ui black label">
+        Copyright <%= site.author %>, <%= new Date().getFullYear() %>. Powered by <a href="http://www.linemanjs.com">Lineman</a>
+      </div>
     </footer>
     <script type="text/javascript" src="<%= js %>"></script>
   </body>

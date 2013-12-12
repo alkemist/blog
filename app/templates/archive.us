@@ -1,8 +1,12 @@
-<h1>archives</h1>
-<ul>
-<% _(site.posts).chain().reverse().each(function(post){ %>
-  <li>
-    <a href="/<%= post.htmlPath() %>"><%= post.title() %></a>
-  </li>
-<% }) %>
-</ul>
+<div class="ui grid">
+    <div class="column">
+    <h1>Archives</h1>
+    <ul class="ui stacked segment nostyle-list">
+    <% _(site.posts).chain().reverse().each(function(post){ %>
+      <li>
+        <a href="/<%= post.htmlPath() %>"><%= post.title() %></a>
+      </li>
+    <% }) %>
+    </ul>
+    </div>
+</div>

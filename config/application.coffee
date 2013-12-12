@@ -11,9 +11,9 @@ module.exports = require(process.env['LINEMAN_MAIN']).config.extend "application
 
   markdown:
     options:
-      author: "FirstName LastName"
-      title: "my lineman blog"
-      description: "where I post all my brilliant ideas"
+      author: "Roberto Guerra"
+      title: "Stumbling On Code"
+      description: "My clumsy self stumbling through a jungle of code."
       url: "http://www.mylinemanblog.com"
       rssCount: 10 #<-- remove, comment, or set to zero to disable RSS generation
       #disqus: "my_disqus_name" #<-- uncomment and set your disqus account name to enable disqus support
@@ -42,9 +42,27 @@ module.exports = require(process.env['LINEMAN_MAIN']).config.extend "application
         js: "../js/app.js"
         css: "../css/app.css"
 
+  copy:
+    stylesheet:
+      files:[
+        expand: false
+        flatten: false
+        filter: 'isFile'
+        src: ['vendor/css/semantic.css']
+        dest: 'generated/css/semantic.css'
+      ]
+    fonts:
+      files:[
+        expand: true
+        flatten: true
+        filter: 'isFile'
+        src: ['vendor/fonts/*']
+        dest: 'generated/fonts/'
+      ]
+
   # Use grunt-markdown-blog in lieu of Lineman's built-in pages task
   prependTasks:
-    common: "markdown:dev"
+    common: ["markdown:dev", "copy:fonts"]
     dist: "markdown:dist"
   removeTasks:
     common: "pages:dev"
@@ -58,3 +76,4 @@ module.exports = require(process.env['LINEMAN_MAIN']).config.extend "application
     pages:
       files: []
       tasks: []
+
