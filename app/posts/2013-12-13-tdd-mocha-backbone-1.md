@@ -2,9 +2,6 @@
 title: "Episode I: TDD with Backbonejs and Mocha"
 author:
   name: "Roberto Guerra"
-video:
-  type: "youtube"
-  url: "http://www.youtube.com/embed/HHcEjAQ46Io"
 ---
 
 <iframe src="//player.vimeo.com/video/81061604" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> <p><a href="http://vimeo.com/81061604">Stumbling with TDD & Coffeescript/Backbonejs - Episode I</a> from <a href="http://vimeo.com/user15876177">Roberto Guerra</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
