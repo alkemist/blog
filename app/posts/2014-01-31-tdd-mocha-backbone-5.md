@@ -55,6 +55,18 @@ class RateCalculator
     _.reduce(timeEntries.models, (acc, timeEntry)-> acc * parseInt(timeEntry.hrs, 10), 20)
 ```
 
+<p class="content">
+This looks much simpler. Even our test looks better.
+</p>
+
+```coffeescript
+describe 'Rate Calculator', ->
+  it 'calcluates the hourly rate', ->
+    calculator = new RateCalculator()
+    timeEntriesStub = new TimeEntries([{hrs: 2}, {hrs: 3}])
+    expect( calculator.calculate(20) ).to.be 100
+```
+
 <h3>Stubbing $.ajax.</h3>
 
 <h3>Repository Pattern.</h3>
