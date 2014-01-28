@@ -2,21 +2,28 @@
 <html>
   <head>
     <link rel="stylesheet" type="text/css" href="<%= css %>" media="all" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="alternate" type="application/rss+xml" title="<%= site.title %> - feed" href="/index.xml" />
     <title><%= site.title %><%= post ? ' - '+post.title() : '' %></title>
   </head>
-  <body style="padding-left: 1em, background-color: #f7f7f7">
-      <div class="ui inverted menu">
-        <a class="item">
-          <%= site.title %>
-        </a>
-        <a class="item" href="/">
-          Home
-        </a>
-        <a class="item" href="/archive.html">
-          Archives
-        </a>
-      </div>
+  <body>
+      <nav class="nav">
+      <span class="site-title">
+        <%= site.title %>
+        </span>
+        <ul>
+          <li>
+            <a class="item" href="/">
+              Home
+            </a>
+          </li>
+          <li>
+            <a class="item" href="/archive.html">
+              Archives
+            </a>
+          </li>
+        </ul>
+      </nav>
     <div class="wrapper">
 
       <%= yield %>
