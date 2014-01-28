@@ -1,14 +1,14 @@
 {
-  "name": "some-lineman-blog",
-  "title": "An HTML/JS/CSS app",
+  "name": "blog.stumblingoncode.com",
+  "title": "Stumble with words, Stumble with code.",
   "version": "0.0.1",
   "private": true,
   "author": {
-    "name": "John Doe",
-    "company": "ACME, Inc."
+    "name": "Roberto Guerra",
+    "company": "Spantree LLC."
   },
   "dependencies": {
     "lineman": ">=0.11.6",
-    "grunt-markdown-blog": ">= 0.2.0"
+    "grunt-markdown-blog": ">= 0.2.4"
   }
 }
