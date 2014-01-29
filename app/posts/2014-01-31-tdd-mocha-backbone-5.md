@@ -17,7 +17,6 @@ the realm of integration or functional tests.
 
 Lets consider the following code:
 
-
 ```coffeescript
 class RateCalculator
   calculate: (ratePerHour) ->
@@ -91,7 +90,20 @@ We can solve this by injecting the collection, like we did in the first scenario
 I would take; but we will reach a point where passing the collection like a hot potato will not save us,
 and we will have to deal with this situation head on.
 
+And what about situations where we would want to trigger an action when a new set of collections is fetched?
+Or maybe we have a real-time dashboard that needs to get updated on near real time everytime some event
+happens somewhere else (even on a remote computer or server)?
 
-<h3>Repository Pattern.</h3>
+We can still solve this by using Backbone Collections and listening to the events triggered. And we might even
+add our own custom events. But the fact remains that we are still tightly coupled to Backbone.
+
+###Repository Pattern.
+If we step back for a bit, and imagine our application as a vulnerable kernel that needs to be shielded from any
+outside infection, then we can see how allowing direct calls to Backbone.Collection#fetch() deep in our application
+exposes it to external factors. Changes to the Backbone API can require massive changes deep in our application's
+kernel.
+
+We can take some inspiration from the ['Hexagonal Architecture'](http://alistair.cockburn.us/Hexagonal+architecture) to help us come up with a 'cleaner' solution.
+In order to access any external system (like xhr requests), we need to add an interface for it.
 
 
