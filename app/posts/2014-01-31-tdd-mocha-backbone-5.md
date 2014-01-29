@@ -13,12 +13,10 @@ be implemented yet. Besides, we are focusing on unit tests, and they
 should only test individual indpendent units. If our test makes an external
 request, then it stops being a unit test and starts to venture into
 the realm of integration or functional tests.
+</p>
 
-<p>
 Lets consider the following code:
-</p>
 
-</p>
 
 ```coffeescript
 class RateCalculator
@@ -27,11 +25,10 @@ class RateCalculator
     timeEntries.fetch()
     _.reduce(timeEntries.models, (acc, timeEntry)-> acc * parseInt(timeEntry.hrs, 10), 20)
 ```
-<p class="content">
+
 This method calculates the total rate based on how many hours the hourly rate. The hours is fetched via
 an XHR request. Testing this can be a little challenging, but not impossible. We can use sinon to stub
 the collection's `fetch` function:
-</p>
 
 ```coffeescript
 describe 'Rate Calculator', ->
@@ -42,12 +39,10 @@ describe 'Rate Calculator', ->
     timeEntriesStub.restore()
 ```
 
-<p class="content">
 While this will work, there are a couple things that should bother us. First, the RateCalculator
 is tightly coupled to TimeEntries collection; but most importantly, the RateCalculator is doing too much.
 It is retrieving the data AND calculating the rate. We can address this by 'injecting' the TimeEntries
 into the calculcate method:
-</p>
 
 ```coffeescript
 class RateCalculator
@@ -55,9 +50,7 @@ class RateCalculator
     _.reduce(timeEntries.models, (acc, timeEntry)-> acc * parseInt(timeEntry.hrs, 10), 20)
 ```
 
-<p class="content">
 This looks much simpler. Even our test looks better.
-</p>
 
 ```coffeescript
 describe 'Rate Calculator', ->
@@ -67,7 +60,37 @@ describe 'Rate Calculator', ->
     expect( calculator.calculate(20) ).to.be 100
 ```
 
-<h3>Stubbing $.ajax.</h3>
+If we step back for a moment, we can see that we might stumble on the same problem again. Consider
+a testing some part of our application that uses RateCalculator. We might have some code similar to this:
+
+```coffeescript
+class RateController
+  onSubmittButton: ->
+    timeEntries = new TimeEntries().fetch()
+    rateCalculator = new RateCalculator()
+    rateCalculator.calculate(20, timeEntries)
+```
+
+When we try to test this we might have a situation similar to our first test:
+
+```coffeescript
+describe 'Rate Controller', ->
+  it 'calcluates the hourly rate', ->
+    rateController = new RateController()
+    timeEntriesStub = sinon.stub(TimeEntries::, 'fetch').returns(new TimeEntries([{hrs: 2}, {hrs: 3}]))
+    expect( rateCalculator.onSubmitButton() ).to.be 100
+    timeEntriesStub.restore()
+```
+
+If we need to use RateCalculator in other parts of our application, we will duplicate this in many places
+and lose track of it. Why is this bad again? Because it couples our application to Backbone and creates
+some unmaintanable code. It will be difficult to change this if we ever decide that maybe Backbone is not
+the right choice, or if our TimeEntries is a more complex collection
+
+We can solve this by injecting the collection, like we did in the first scenario, and it is the route
+I would take; but we will reach a point where passing the collection like a hot potato will not save us,
+and we will have to deal with this situation head on.
+
 
 <h3>Repository Pattern.</h3>
 
