@@ -92,10 +92,30 @@ and we will have to deal with this situation head on.
 
 And what about situations where we would want to trigger an action when a new set of collections is fetched?
 Or maybe we have a real-time dashboard that needs to get updated on near real time everytime some event
-happens somewhere else (even on a remote computer or server)?
+happens somewhere else (even on a remote computer or server)? How we handle error messages for all xhr requests?
 
-We can still solve this by using Backbone Collections and listening to the events triggered. And we might even
-add our own custom events. But the fact remains that we are still tightly coupled to Backbone.
+What about scenarios where the xhr response does not fit nicely with our collections and entities? For example, 
+suppose we need to request data about 'things to do' and the structure of that data returned is something like:
+
+```json
+{
+venues: [{name: 'Venue A', qty: 10},
+        {name: 'Venue B', qty: 65},
+        {name: 'Venue C', qty: 31}
+        ],
+dates: [{when: 'Today', qty: 7},
+        {when: 'Tomorrow', qty: 13},
+        {when: 'Friday', qty: 41}
+      ]
+thingsToDo: [{name: 'Concert A', date: '2014-01-31 20:00'},
+            {name: 'Comedy Club', date: '2014-01-31 19:00'}
+            ......
+            ]
+rel:[{currentPage: 'http://some.domain/2/20'},
+      {nextPage: 'http://some.domain/3/20'},
+      {previousPage: 'http://some.domain/1/20'}
+  ]
+```
 
 ###Repository Pattern.
 If we step back for a bit, and imagine our application as a vulnerable kernel that needs to be shielded from any
@@ -105,5 +125,39 @@ kernel.
 
 We can take some inspiration from the ['Hexagonal Architecture'](http://alistair.cockburn.us/Hexagonal+architecture) to help us come up with a 'cleaner' solution.
 In order to access any external system (like xhr requests), we need to add an interface for it.
+
+We might want to start by defining the interface:
+
+```coffeescript
+describe 'Time Entry Repository', ->
+  describe 'Configure the end points'
+    it 'When end points are not uniform', ->
+      repository = new TimeEntryRepository
+        get:  '...'
+        post: '...'
+        put:  '...'
+        list: '...'
+      expect( repository.getURL() ).to.be '...'
+      expect( repository.postURL() ).to.be '...'
+      expect( repository.putURL() ).to.be '...'
+      expect( repository.listURL() ).to.be '...'
+    it 'When end points are uniform', ->
+      repository = new TimeEntryRepository
+        all:  '...'
+      expect( repository.getURL() ).to.be '...'
+      expect( repository.postURL() ).to.be '...'
+      expect( repository.putURL() ).to.be '...'
+      expect( repository.listURL() ).to.be '...'
+```
+
+Our repository makes provisions for cases where the url does not fit nicely with Backbone's
+expectations. Backbone expects all urls to be the same and the only thing that changes
+is the http verb. There might be cases where that is not possible.
+
+
+
+###Handling Error Messages
+
+
 
 
