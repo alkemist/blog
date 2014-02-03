@@ -155,8 +155,151 @@ expectations. Backbone expects all urls to be the same and the only thing that c
 is the http verb. There might be cases where that is not possible.
 
 
+####Fetch API
+Now we can specify how we will fetch data from the server:
 
-###Handling Error Messages
+```coffeescript
+describe 'Time Entry Repository', ->
+  describe 'Fetch API', ->
+    describe 'When it fetches data from remote server', ->
+      it 'then makes an xhr request', ->
+        xhrMock = sinon.mock($, 'ajax').returns({})
+        repository = new TimeEntryRepository()
+        repository.all('http://a.url/timeEntries')
+        expect(xhr.calledOnce).to.be true
+        xhrMock.restore()
+```
+
+This test only needs to ensure that an xhr request is made with jquery. It is testing the 
+repository's internal implementation, which consequently makes it very fragile. However, an object like
+this lives in the periphery of an application and for them these kinds of tests are common. We will later
+see how it makes our domain logic much cleaner. In the meantime, we can make this test pass:
+
+```coffeescript
+class TimeRepository
+  all: (url) ->
+    @_listUrl = url
+    @_getUrl = url
+    ...
+
+  listUrl: ->
+    @_listUrl
+
+  fetch: ->
+    $.ajax(url: @listUrl())
+```
+
+Our fetch function could have also used a backbone collection. The clients using the repository won't know
+nor need to know how it is implemented. But this still looks a little wonky. We haven't gotten anything benefits
+from it... yet. 
+
+Now lets consider a scenario where we'd like to `promisify` our interface:
+
+```coffeescript
+describe 'When it fetches data from remote server', ->
+  it 'then it returns a promise', (done)->
+    xhrMock = sinon.stub($, 'ajax').returns([1,2,3,4,5])
+    repository = new TimeEntryRepository()
+    repository
+      .all('http://a.url/timeEntries')
+      then(timeEntries) ->
+        expect(timeEntries.length).to.be 5
+        done()
+    xhrMock.restore()
+```
+
+This is a contrived example, but bear with me for a while. We return an array of 5 items and we need to tell
+mocha that this is an async test. We do this by passing `done` as an argument to the test and then invoking
+`done()` to notify mocha that the async test has finished. We can then make assertions on the value of the
+promise. Our specs now start to look more like production code. The only inconvenience at the moment is
+creating some fake data. But we can live with that. Much better than coupling all our tests (and production
+code to jquery). And we don't need to change anything in our code to make this pass because $.ajax() returns
+a promise.
+
+This is okay for very simple cases, but what if we need to return something with behavior (an instance of an object):
+
+```coffeescript
+describe 'When it fetches data from remote server', ->
+  it 'then it returns a promise', (done)->
+    xhrMock = sinon.stub($, 'ajax').returns([1,2,3,4,5])
+    repository = new TimeEntryRepository()
+    repository
+      .all('http://a.url/timeEntries')
+      then(timeEntries) ->
+        expect(timeEntries instanceof TimeEntries).to.be true
+        done()
+    xhrMock.restore()
+```
+
+Implementing this wouldn't be so difficult:
+
+```coffeescript
+fetch: ->
+  promise = Q.when($.ajax(url: @listUrl()))
+  promise.then (response) =>
+    new TimeEntries(response)
+```
+
+We introduced the Q library for dealing with promises (a matter of personal preference). Our clients don't need
+to know what libary is being used, they just need to know its a Promises/A+ compatiable library. So we should be
+able to substitute the Q library for Bluebird if we need to and any client of this class won't need to change.
+
+
+####Notifications
+We can now even start introducing custom events that our application can listen to. An event for fetching data, or
+for creating a new entity, deleting one or updating one; can be triggered for any part of our application to
+listen to:
+
+```coffeescript
+describe 'Time Entry Repository', ->
+  beforeEach ->
+    @caughtEvent = false
+    @aRemoteObject =
+      listen: (repository) =>
+        repository.onFetch =>
+          @caughtEvent = true
+          
+  it 'Trigger an event when entries are fetched', (done)->
+    repository = new TimeEntryRepository()
+    repository.all('http://a.url/timeEntries')
+    xhrStub = sinon.stub($, 'ajax').returns([1,2,3,4,5])
+    @aRemoteObject.listen(repository)
+    repository.fetch()
+    expect( @caughtEvent ).to.be true
+    xhrStub.restore()
+
+```
+
+```coffeescript
+
+class TimeEntryRepository
+  constructor: ->
+    @vent = _.extend {}, Backbone.Events
+
+  onFetch: (callback) ->
+    @vent.on 'fetched', callback
+
+  fetch: ->
+    promise = Q.when($.ajax(url: @listUrl()))
+    promise.then (response) =>
+      timeEntries = new TimeEntries(response)
+      @vent.trigger 'fetched', timeEntries
+
+```
+
+Now any part of our application can listen directly for any events triggered by the repository and execute
+a function accordingly. This enables us to update different parts of our UI independent of each other. We can
+also test those parts our application pretty easily by just triggering the event without needing to wire up
+the entire repository:
+
+```coffeescript
+repository.vent.trigger 'fetched'
+```
+
+In some cases, we might only need to create some fake time entries, but that is to be expected.
+
+
+####Handling Error Messages
 
 
 
