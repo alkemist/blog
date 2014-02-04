@@ -1,5 +1,5 @@
 ---
-title: "Episode IV: TDD with Backbonejs and Mocha - Testing XHR"
+title: "Testing XHR in Backbone using a Repository and Promises"
 author:
   name: "Roberto Guerra"
 ---
@@ -271,7 +271,6 @@ describe 'Time Entry Repository', ->
 ```
 
 ```coffeescript
-
 class TimeEntryRepository
   constructor: ->
     @vent = _.extend {}, Backbone.Events
@@ -298,9 +297,57 @@ repository.vent.trigger 'fetched'
 
 In some cases, we might only need to create some fake time entries, but that is to be expected.
 
+####Handling Network Failures
+This strategy can also enable us to handle network errors in a generic manner. If our app is a single
+page app that is expected to be kept running on the browser for long periods of time (even days or weeks),
+whenever the network is down or an xhr request failed for some other reason, we should be able to notify the user.
+Although we can do this with Backbone by overriding _sync_, it feels like a hack and I am always wary of 
+overriding third party libraries.
 
-####Handling Error Messages
+To handle network failures for all xhr requests we would either need to implement that code in every repository,
+or use inheritance (or mixins also). We'll use inheritance in this case since it is someting only 
+repositories will need to do:
 
+```coffeescript
+describe 'Time Entry Repository', ->
+  beforeEach ->
+    @handledError = false
+    @errorHandlingFn = -> @handledError = true
+          
+  it 'Handles XHR errors', (done)->
+    repository = new TimeEntryRepository()
+    repository.all('http://a.url/timeEntries')
+    deferred = Q.defer()
+    xhrStub = sinon.stub($, 'ajax').returns(deferred)
+    repository
+      .fetch()
+      .then( -> console.log 'Success'
+      , @handleError)
+    deferred.reject()
+    expect( @handledError ).to.be true
+    xhrStub.restore()
 
+```
 
+We can handle errors with promises by passing in a function as an error handler to the _then()_ method.
+We could also have an application event bus which we can notify of any errors from within this error handler:
+
+```coffeescript
+repository
+  .fetch()
+  .then(null, (error)-> app.eventBus.trigger 'network:error')
+
+...
+app.eventBus.on  'network:error', showErrorMessage
+```
+
+###Conclusion
+We can use the Repository Pattern to decouple our application from any framework specific code that can
+make our application hard to test. As a secondary benefit, our objects become more focused by having only
+one primary reason to change if all they do is just concern themselves with fetching and sending data.
+Promises can also be used to make our code more readable when dealing with async operations. They also help
+us deal with error handling in an elegant manner. Finally, the use of a messaging pattern and an event bus
+helps us keep the components of our application decoupled by enabling us to send messages to remote objects
+without having to hold a direct reference to them. We can then test these objects in isolation without
+having to wire up a large object graph.
 
