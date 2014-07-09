@@ -95,11 +95,12 @@ If you need to output a literal `$` character, you can simply escape it with `\$
 
 ###Composing Templates
 Templates can also be composed. This allows us to reuse templates in a very elegant & convenient manner. A common use case is if we want all our
-pages to have the same header and footer. __Ratpack__ provides a `markup` (for lack of a better word) that we can use to render templates
-inside other templates:
+pages to have the same header and footer. 
+The [`render()` method of `TemplateScript`](http://www.ratpack.io/manual/current/api/ratpack/groovy/templating/TemplateScript.html#render\(java.lang.String\)) 
+can be used to render nested templates.
 
 ```html
-<% render  '_templateName.html' %>
+<% render '_templateName.html' %>
 ```
 
 There is nothing special about these templates. They reside under the __templates__ directory and they don't really need the underscore in front
@@ -126,7 +127,7 @@ of their name, but it is the recommended convention to use. Here is a simple exa
 'hello.html'
 -----------
 <% render "_header.html" %>
-<h1>Hello $model.name, meet the amazing Ratpack!</h1>
+<h1>Hello ${html model.name}, meet the amazing Ratpack!</h1>
 <% render "_footer.html" %>
 ```
 
