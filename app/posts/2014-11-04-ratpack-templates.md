@@ -4,8 +4,8 @@ author:
   name: "Roberto Guerra"
 ---
 
-Rendering html templates in __Ratpack__ is very straightforward. We'll use the Groovy Template to render very simple templates, to complex
-templates with sub-templates; and templates with dynamic data.
+Rendering html templates in __Ratpack__ is very straightforward. We'll use the built-in templating features of Ratpack's Groovy module to render 
+very simple templates, to complex templates with sub-templates; and templates with dynamic data.
 
 ###Rendering A Simple Template
 As mentioned in our previous post, the root directory for a __Ratpack__ application resides under __src/main/ratpack__. This will generally have
