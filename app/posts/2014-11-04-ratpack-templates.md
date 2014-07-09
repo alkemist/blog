@@ -40,17 +40,17 @@ This is how we would use this method to render some data in our template:
 import static ratpack.groovy.Groovy.groovyTemplate
 
 ratpack {
-
   handlers {
     get("hello") {
-      render groovyTemplate([name: "Jon"],"hello.html")
+      render groovyTemplate("hello.html", name: "Jon")
     }
   }
 }
 ```
 
-__Ratpack__ gives us a __model__ attribute in all our templates, which will hold any data we pass to it from our handlers. So if we want to render
-the data in the example above we would just print __$model.name__ anywhere within our template where we want to display it:
+We are using [Groovy's named parameter syntax](http://mrhaki.blogspot.com.au/2009/09/groovy-goodness-named-parameters-are.html) here.
+
+Template files are just text files with embedded Groovy expressions.
 
 ```html
 <html>
@@ -61,6 +61,36 @@ the data in the example above we would just print __$model.name__ anywhere withi
     <h1>Hello $model.name, meet the amazing Ratpack</h1>
   </body>
 </html>
+```
+
+The content of the file is effectively evaluated as one big [Groovy GString](http://mrhaki.blogspot.com.au/2009/08/groovy-goodness-string-strings-strings.html).
+Code can be evaluated via the standard `$«variable»` or `${«code»}` GString constructs.
+
+The API available for a template file is the [TemplateScript](http://www.ratpack.io/manual/current/api/ratpack/groovy/templating/TemplateScript.html) type.
+Note how it provides a `getModel()` method that provides the map of data that we passed to the `groovyTemplate()` method.
+It also provides the `html()` method that can be used for escaping HTML meta characters.
+A better way to write our template would be:
+
+```html
+<html>
+  <head>
+    <title>Hello From Ratpack</title>
+  </head>
+  <body>
+    <h1>Hello ${html model.name}, meet the amazing Ratpack!</h1>
+  </body>
+</html>
+```
+
+This way, if someone is unfortunate enough to contain `<strong>` in their name we will correctly encode this as `&lt;strong&gt;` in the output HTML.
+  
+In addition to the `$«variable»` and `${«code»}` constructs, `<% «code» %>` and `<%= «code %>` can also be used for larger (i.e. multiline) blocks of code.
+The difference is that the latter outputs the string value of the last expression while the former does not.
+
+If you need to output a literal `$` character, you can simply escape it with `\$`.
+
+```html
+<p>\$20</p>
 ```
 
 ###Composing Templates
