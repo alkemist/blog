@@ -133,6 +133,24 @@ of their name, but it is the recommended convention to use. Here is a simple exa
 
 The sub-templates will also have access to the same `model` as the `main` template. So we can access the same data if we need to.
 
+### Coming feature: code based templates
+
+The next release of Ratpack, version 0.9.7, will also support another style of template based on [Groovy's markup templates](http://melix.github.io/blog/2014/02/markuptemplateengine.html).
+
+Instead of template files being text mixed with Groovy snippets they are Groovy code mixed with text snippets.
+Our template would become:
+
+```java
+html {
+  head {
+    title "Hello From Ratpack"
+  }
+  body {
+    h1 "Hello $name, meet the amazing Ratpack!"
+  }
+}
+```
+
 ###Summary
 Rendering templates with __Ratpack__ is not complicated. We can render simple templates, and templates with dynamic data that is
 set by the handlers. We can also reuse our templates and compose them.
